@@ -1,0 +1,13 @@
+{
+  "name": "personal-ssh-client",
+  "private": true,
+  "scripts": {
+    "check": "pnpm --filter desktop check",
+    "dev:desktop": "pnpm --filter desktop tauri dev",
+    "test:rust": "cargo test --workspace"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

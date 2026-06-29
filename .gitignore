@@ -3,3 +3,11 @@ __pycache__/
 outputs/
 *.pyc
 .worktrees/
+/target/
+/node_modules/
+**/node_modules/
+**/dist/
+**/.env
+!.env.example
+.DS_Store
+.superpowers/
