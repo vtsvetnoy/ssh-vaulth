@@ -13,6 +13,9 @@ const KDF_PARALLELISM: u32 = 1;
 const KEY_LENGTH: usize = 32;
 const SALT_LENGTH: usize = 16;
 const NONCE_LENGTH: usize = 24;
+const SCHEMA_VERSION: u32 = 1;
+const CIPHER: &str = "xchacha20poly1305";
+const KDF_ALGORITHM: &str = "argon2id";
 
 #[derive(Debug, Error)]
 pub enum VaultCryptoError {
@@ -68,6 +71,7 @@ pub enum HostAuth {
 #[serde(rename_all = "camelCase")]
 pub struct EncryptedVault {
     pub schema_version: u32,
+    pub cipher: String,
     pub kdf: KdfParams,
     pub salt: String,
     pub nonce: String,
@@ -94,7 +98,7 @@ pub fn encrypt_vault(
     OsRng.fill_bytes(&mut nonce);
 
     let kdf = KdfParams {
-        algorithm: "argon2id".to_string(),
+        algorithm: KDF_ALGORITHM.to_string(),
         memory_kib: KDF_MEMORY_KIB,
         iterations: KDF_ITERATIONS,
         parallelism: KDF_PARALLELISM,
@@ -108,7 +112,8 @@ pub fn encrypt_vault(
         .map_err(|_| VaultCryptoError::EncryptFailed)?;
 
     Ok(EncryptedVault {
-        schema_version: vault.schema_version,
+        schema_version: SCHEMA_VERSION,
+        cipher: CIPHER.to_string(),
         kdf,
         salt: STANDARD.encode(salt),
         nonce: STANDARD.encode(nonce),
@@ -120,19 +125,22 @@ pub fn decrypt_vault(
     encrypted: &EncryptedVault,
     master_password: &str,
 ) -> Result<Vault, VaultCryptoError> {
+    validate_encrypted_metadata(encrypted)?;
+
     let salt = STANDARD
         .decode(&encrypted.salt)
         .map_err(|_| VaultCryptoError::DecryptFailed)?;
     let nonce = STANDARD
         .decode(&encrypted.nonce)
         .map_err(|_| VaultCryptoError::DecryptFailed)?;
-    let ciphertext = STANDARD
-        .decode(&encrypted.ciphertext)
-        .map_err(|_| VaultCryptoError::DecryptFailed)?;
 
     if salt.len() != SALT_LENGTH || nonce.len() != NONCE_LENGTH {
         return Err(VaultCryptoError::DecryptFailed);
     }
+
+    let ciphertext = STANDARD
+        .decode(&encrypted.ciphertext)
+        .map_err(|_| VaultCryptoError::DecryptFailed)?;
 
     let key = derive_key(master_password, &salt, &encrypted.kdf)
         .map_err(|_| VaultCryptoError::DecryptFailed)?;
@@ -144,12 +152,27 @@ pub fn decrypt_vault(
     serde_json::from_slice(&plaintext).map_err(|_| VaultCryptoError::DecryptFailed)
 }
 
+fn validate_encrypted_metadata(encrypted: &EncryptedVault) -> Result<(), VaultCryptoError> {
+    if encrypted.schema_version != SCHEMA_VERSION
+        || encrypted.cipher != CIPHER
+        || encrypted.kdf.algorithm != KDF_ALGORITHM
+        || encrypted.kdf.memory_kib != KDF_MEMORY_KIB
+        || encrypted.kdf.iterations != KDF_ITERATIONS
+        || encrypted.kdf.parallelism != KDF_PARALLELISM
+        || encrypted.kdf.key_length as usize != KEY_LENGTH
+    {
+        return Err(VaultCryptoError::DecryptFailed);
+    }
+
+    Ok(())
+}
+
 fn derive_key(
     master_password: &str,
     salt: &[u8],
     kdf: &KdfParams,
 ) -> Result<[u8; KEY_LENGTH], VaultCryptoError> {
-    if kdf.algorithm != "argon2id" || kdf.key_length as usize != KEY_LENGTH {
+    if kdf.algorithm != KDF_ALGORITHM || kdf.key_length as usize != KEY_LENGTH {
         return Err(VaultCryptoError::KeyDerivationFailed);
     }
 
