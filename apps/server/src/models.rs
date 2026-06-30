@@ -1,7 +1,7 @@
 use personal_ssh_crypto::EncryptedVault;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RegisterRequest {
     pub email: String,
@@ -9,7 +9,7 @@ pub struct RegisterRequest {
     pub device_name: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginRequest {
     pub email: String,
@@ -17,7 +17,7 @@ pub struct LoginRequest {
     pub device_name: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthResponse {
     pub token: String,
