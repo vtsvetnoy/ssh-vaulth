@@ -14,6 +14,7 @@ cp .env.example .env
 ```
 
 Edit `.env` and set `SYNC_DOMAIN` plus a long random `POSTGRES_PASSWORD`.
+The `.env` file is intentionally ignored by Git and must not be committed.
 
 ```bash
 docker compose up -d --build
