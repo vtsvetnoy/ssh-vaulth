@@ -44,25 +44,67 @@ async fn register(
         return error(StatusCode::INTERNAL_SERVER_ERROR, "password_hash_failed");
     };
 
+    let Ok(mut tx) = state.pool.begin().await else {
+        return error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "transaction_start_failed",
+        );
+    };
+
     let insert_user =
         sqlx::query("INSERT INTO users (id, email, password_hash) VALUES ($1, $2, $3)")
             .bind(user_id)
             .bind(email)
             .bind(password_hash)
-            .execute(&state.pool)
+            .execute(&mut *tx)
             .await;
 
-    if insert_user.is_err() {
-        return error(StatusCode::CONFLICT, "user_exists");
+    if let Err(err) = insert_user {
+        if is_unique_violation(&err) {
+            return error(StatusCode::CONFLICT, "user_exists");
+        }
+        return error(StatusCode::INTERNAL_SERVER_ERROR, "user_create_failed");
     }
 
-    let _ =
+    let insert_vault =
         sqlx::query("INSERT INTO vaults (user_id, version, encrypted_vault) VALUES ($1, 0, NULL)")
             .bind(user_id)
-            .execute(&state.pool)
+            .execute(&mut *tx)
             .await;
 
-    issue_session(&state.pool, user_id, req.device_name).await
+    if insert_vault.is_err() {
+        return error(StatusCode::INTERNAL_SERVER_ERROR, "vault_create_failed");
+    }
+
+    let token = new_session_token();
+    let hash = token_hash(&token);
+    let session_id = Uuid::new_v4();
+    let expires_at = Utc::now() + Duration::days(30);
+
+    let insert_session = sqlx::query(
+        "INSERT INTO sessions (id, user_id, token_hash, device_name, expires_at)
+         VALUES ($1, $2, $3, $4, $5)",
+    )
+    .bind(session_id)
+    .bind(user_id)
+    .bind(hash)
+    .bind(req.device_name)
+    .bind(expires_at)
+    .execute(&mut *tx)
+    .await;
+
+    if insert_session.is_err() {
+        return error(StatusCode::INTERNAL_SERVER_ERROR, "session_create_failed");
+    }
+
+    if tx.commit().await.is_err() {
+        return error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "transaction_commit_failed",
+        );
+    }
+
+    Json(AuthResponse { token }).into_response()
 }
 
 async fn login(State(state): State<AppState>, Json(req): Json<LoginRequest>) -> impl IntoResponse {
@@ -95,12 +137,15 @@ async fn logout(State(state): State<AppState>, headers: HeaderMap) -> impl IntoR
         return StatusCode::NO_CONTENT.into_response();
     };
 
-    let _ = sqlx::query("DELETE FROM sessions WHERE token_hash = $1")
+    let deleted = sqlx::query("DELETE FROM sessions WHERE token_hash = $1")
         .bind(hash)
         .execute(&state.pool)
         .await;
 
-    StatusCode::NO_CONTENT.into_response()
+    match deleted {
+        Ok(_) => StatusCode::NO_CONTENT.into_response(),
+        Err(_) => error(StatusCode::INTERNAL_SERVER_ERROR, "session_delete_failed"),
+    }
 }
 
 async fn get_vault(State(state): State<AppState>, headers: HeaderMap) -> impl IntoResponse {
@@ -225,6 +270,12 @@ fn bearer_hash(headers: &HeaderMap) -> Option<String> {
 
 fn normalize_email(email: &str) -> String {
     email.trim().to_lowercase()
+}
+
+fn is_unique_violation(err: &sqlx::Error) -> bool {
+    err.as_database_error()
+        .and_then(|database_error| database_error.code())
+        .is_some_and(|code| code == "23505")
 }
 
 fn error(status: StatusCode, code: &str) -> axum::response::Response {
