@@ -4,4 +4,12 @@ version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 
+[lib]
+name = "personal_ssh_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
 [dependencies]
+tauri = { version = "2", features = [] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
