@@ -1,11 +1,12 @@
 use axum::extract::{Path, State};
-use axum::http::{HeaderMap, StatusCode};
+use axum::http::{HeaderMap, Method, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use chrono::{Duration, Utc};
 use serde_json::{json, Value};
 use sqlx::{PgPool, Row};
+use tower_http::cors::{Any, CorsLayer};
 use uuid::Uuid;
 
 use crate::auth::{hash_password, new_session_token, token_hash, verify_password};
@@ -20,6 +21,11 @@ pub struct AppState {
 }
 
 pub fn router(pool: PgPool) -> Router {
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::OPTIONS])
+        .allow_headers(Any);
+
     Router::new()
         .route("/health", get(health))
         .route("/auth/register", post(register))
@@ -27,6 +33,7 @@ pub fn router(pool: PgPool) -> Router {
         .route("/auth/logout", post(logout))
         .route("/vault", get(get_vault).put(put_vault))
         .route("/users/:id", get(user_probe))
+        .layer(cors)
         .with_state(AppState { pool })
 }
 

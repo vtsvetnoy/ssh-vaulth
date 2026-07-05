@@ -30,6 +30,34 @@ async fn health_route_returns_ok_json() {
 }
 
 #[tokio::test]
+async fn auth_routes_answer_cors_preflight() {
+    let pool = PgPoolOptions::new()
+        .connect_lazy("postgres://ssh:ssh@127.0.0.1:5432/ssh")
+        .expect("lazy pool should be constructed");
+    let app = personal_ssh_server::routes::router(pool);
+
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method(Method::OPTIONS)
+                .uri("/auth/register")
+                .header(header::ORIGIN, "tauri://localhost")
+                .header(header::ACCESS_CONTROL_REQUEST_METHOD, "POST")
+                .header(header::ACCESS_CONTROL_REQUEST_HEADERS, "content-type")
+                .body(Body::empty())
+                .expect("request should build"),
+        )
+        .await
+        .expect("preflight request should complete");
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(
+        response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN),
+        Some(&header::HeaderValue::from_static("*"))
+    );
+}
+
+#[tokio::test]
 async fn logout_with_bearer_returns_500_when_delete_fails() {
     let pool = PgPoolOptions::new()
         .acquire_timeout(Duration::from_millis(50))
