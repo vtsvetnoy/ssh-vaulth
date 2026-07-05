@@ -24,7 +24,7 @@ export function SshTerminal({ active, host, onClose }: Props) {
   const terminalRef = useRef<Terminal | null>(null);
   const fitRef = useRef<FitAddon | null>(null);
   const sessionIdRef = useRef<string | null>(null);
-  const [status, setStatus] = useState("Connecting");
+  const [status, setStatus] = useState("Starting SSH");
 
   useEffect(() => {
     const terminal = new Terminal({
@@ -44,7 +44,8 @@ export function SshTerminal({ active, host, onClose }: Props) {
     terminal.loadAddon(fit);
     terminal.open(containerRef.current!);
     fit.fit();
-    terminal.writeln(`Connecting to ${host.username}@${host.hostname}:${host.port}`);
+    terminal.writeln(`Starting local ssh for ${host.label}`);
+    terminal.writeln(`Target: ${host.username} @ ${host.hostname}:${host.port}`);
 
     terminalRef.current = terminal;
     fitRef.current = fit;
@@ -76,6 +77,7 @@ export function SshTerminal({ active, host, onClose }: Props) {
         const sessionId = await startSshSession(host);
         sessionIdRef.current = sessionId;
         setStatus("SSH started");
+        terminal.writeln("[ssh process started]");
       } catch (err) {
         setStatus("Failed");
         terminal.writeln("");

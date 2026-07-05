@@ -75,6 +75,10 @@ pub fn build_ssh_args(host: &SshHost, key_file_path: Option<&str>) -> Vec<String
         "ServerAliveInterval=30".to_string(),
         "-o".to_string(),
         "ServerAliveCountMax=3".to_string(),
+        "-o".to_string(),
+        "ConnectTimeout=10".to_string(),
+        "-o".to_string(),
+        "ConnectionAttempts=1".to_string(),
     ];
 
     if let Some(path) = key_file_path {
@@ -269,9 +273,14 @@ mod tests {
         assert_eq!(args[4], "ServerAliveInterval=30");
         assert_eq!(args[5], "-o");
         assert_eq!(args[6], "ServerAliveCountMax=3");
-        assert_eq!(args[7], "-l");
-        assert_eq!(args[8], "ubuntu");
-        assert_eq!(args[9], "example.test");
+        assert!(args
+            .windows(2)
+            .any(|pair| pair == ["-o", "ConnectTimeout=10"]));
+        assert!(args
+            .windows(2)
+            .any(|pair| pair == ["-o", "ConnectionAttempts=1"]));
+        assert!(args.windows(2).any(|pair| pair == ["-l", "ubuntu"]));
+        assert_eq!(args.last(), Some(&"example.test".to_string()));
     }
 
     #[test]
