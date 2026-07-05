@@ -1,6 +1,12 @@
 export type HostAuth =
   | { type: "password"; password: string }
-  | { type: "privateKey"; privateKey: string; privateKeyPassphrase?: string };
+  | { type: "privateKey"; privateKey: string; privateKeyPassphrase?: string }
+  | {
+      type: "passwordAndPrivateKey";
+      password: string;
+      privateKey: string;
+      privateKeyPassphrase?: string;
+    };
 
 export type HostRecord = {
   id: string;
