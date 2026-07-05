@@ -1,5 +1,13 @@
 # Oracle Sync Server Runbook
 
+## When To Use Remote Storage
+
+Use this deployment when you want SSH Vault to sync one encrypted account vault between multiple devices, such as a Mac and a Windows PC.
+
+For local-only testing, use `infra/local-compose` instead and enter `http://127.0.0.1:18080` in the desktop app. For remote sync, deploy this Oracle stack and enter the HTTPS domain, for example `https://ssh-sync.example.com`.
+
+The sync server never receives plaintext host passwords or private keys. The desktop app encrypts the vault before upload, and the server stores the encrypted blob plus account/session metadata.
+
 ## Prepare
 
 1. Point a DNS A record such as `ssh-sync.example.com` to the Oracle server public IP.

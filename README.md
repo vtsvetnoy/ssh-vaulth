@@ -20,6 +20,22 @@ Free, self-hosted desktop SSH client with encrypted host sync.
 - `infra/oracle-compose` - server deployment files.
 - `docs/runbooks/oracle-sync-server.md` - Oracle server setup notes.
 
+## Storage modes
+
+SSH Vault can use either a local sync store or a remote sync store. In both modes, the server stores only account records and encrypted vault blobs. Hostnames, passwords, private keys, and notes are encrypted by the desktop app before upload.
+
+Use local storage when you want to test the DMG on one machine or keep a private local-only setup:
+
+```text
+http://127.0.0.1:18080
+```
+
+Use remote storage when you want the same account and encrypted vault to sync across macOS and Windows devices. Deploy the sync server on Oracle, a VPS, or another machine reachable over HTTPS, then use that public URL in the desktop app:
+
+```text
+https://ssh-sync.example.com
+```
+
 ## Local development
 
 Install dependencies:
