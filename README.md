@@ -70,6 +70,13 @@ Then use this URL in the desktop app:
 http://127.0.0.1:18080
 ```
 
+The local Docker stack creates a test account for QA:
+
+```text
+Email: admin
+Password: admin
+```
+
 ## Oracle deployment
 
 Copy `infra/oracle-compose/.env.example` to `infra/oracle-compose/.env`, fill in the domain and database password, then start the stack from `infra/oracle-compose`:

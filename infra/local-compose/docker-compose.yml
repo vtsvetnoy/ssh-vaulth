@@ -24,6 +24,9 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:?set POSTGRES_USER}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:?set POSTGRES_DB}
       BIND_ADDR: 0.0.0.0:8080
+      SSH_VAULT_SEED_ADMIN: "1"
+      SSH_VAULT_ADMIN_EMAIL: admin
+      SSH_VAULT_ADMIN_PASSWORD: admin
     ports:
       - "18080:8080"
     depends_on:
