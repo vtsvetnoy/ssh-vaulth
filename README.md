@@ -16,6 +16,7 @@ Free, self-hosted desktop SSH client with encrypted host sync.
 - `apps/desktop` - React + Tauri desktop application.
 - `apps/server` - Rust sync server.
 - `packages/crypto` - shared vault encryption library.
+- `infra/local-compose` - local sync server for testing the DMG.
 - `infra/oracle-compose` - server deployment files.
 - `docs/runbooks/oracle-sync-server.md` - Oracle server setup notes.
 
@@ -38,6 +39,19 @@ Run the sync server locally:
 
 ```bash
 DATABASE_URL=postgres://ssh:ssh@localhost:5432/ssh cargo run -p personal-ssh-server
+```
+
+Or run the local Docker stack used by the packaged desktop app:
+
+```bash
+cp infra/local-compose/.env.example infra/local-compose/.env
+docker compose --env-file infra/local-compose/.env -f infra/local-compose/docker-compose.yml up -d --build
+```
+
+Then use this URL in the desktop app:
+
+```text
+http://127.0.0.1:18080
 ```
 
 ## Oracle deployment
