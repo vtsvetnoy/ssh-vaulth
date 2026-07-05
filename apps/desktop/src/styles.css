@@ -38,6 +38,13 @@ textarea {
   font: inherit;
 }
 
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  accent-color: #1f8f73;
+}
+
 input::placeholder,
 textarea::placeholder {
   color: #6b7280;
@@ -320,6 +327,35 @@ textarea:focus {
 
 .editor {
   width: min(100%, 620px);
+}
+
+.auth-methods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.auth-methods legend {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.auth-method {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #111827;
+  color: #e5e7eb;
+  padding: 0 12px;
 }
 
 .error {

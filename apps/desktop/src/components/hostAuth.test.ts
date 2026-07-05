@@ -6,7 +6,8 @@ describe("buildHostAuth", () => {
   it("keeps both password and private key credentials", () => {
     expect(
       buildHostAuth({
-        authType: "passwordAndPrivateKey",
+        usePassword: true,
+        usePrivateKey: true,
         password: "server-password",
         privateKey: "-----BEGIN PRIVATE KEY-----",
         privateKeyPassphrase: "key-passphrase",

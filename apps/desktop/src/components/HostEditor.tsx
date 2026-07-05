@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 
 import type { HostRecord } from "../types";
-import { buildHostAuth, type HostAuthType } from "./hostAuth";
+import { buildHostAuth } from "./hostAuth";
 
 type Props = {
   initial?: HostRecord;
@@ -10,25 +10,32 @@ type Props = {
 
 export function HostEditor({ initial, onSave }: Props) {
   const now = new Date().toISOString();
+  const initialUsesPassword =
+    initial?.auth.type === "password" || initial?.auth.type === "passwordAndPrivateKey";
+  const initialUsesPrivateKey =
+    initial?.auth.type === "privateKey" || initial?.auth.type === "passwordAndPrivateKey";
+  const initialPassword =
+    initial?.auth.type === "password" || initial?.auth.type === "passwordAndPrivateKey"
+      ? initial.auth.password
+      : "";
+  const initialPrivateKey =
+    initial?.auth.type === "privateKey" || initial?.auth.type === "passwordAndPrivateKey"
+      ? initial.auth.privateKey
+      : "";
+  const initialPrivateKeyPassphrase =
+    initial?.auth.type === "privateKey" || initial?.auth.type === "passwordAndPrivateKey"
+      ? (initial.auth.privateKeyPassphrase ?? "")
+      : "";
   const [label, setLabel] = useState(initial?.label ?? "");
   const [hostname, setHostname] = useState(initial?.hostname ?? "");
   const [port, setPort] = useState(initial?.port ?? 22);
   const [username, setUsername] = useState(initial?.username ?? "");
-  const [authType, setAuthType] = useState<HostAuthType>(initial?.auth.type ?? "password");
-  const [password, setPassword] = useState(
-    initial?.auth.type === "password" || initial?.auth.type === "passwordAndPrivateKey"
-      ? initial.auth.password
-      : "",
-  );
-  const [privateKey, setPrivateKey] = useState(
-    initial?.auth.type === "privateKey" || initial?.auth.type === "passwordAndPrivateKey"
-      ? initial.auth.privateKey
-      : "",
-  );
+  const [usePassword, setUsePassword] = useState(initial ? initialUsesPassword : true);
+  const [usePrivateKey, setUsePrivateKey] = useState(initial ? initialUsesPrivateKey : false);
+  const [password, setPassword] = useState(initialPassword);
+  const [privateKey, setPrivateKey] = useState(initialPrivateKey);
   const [privateKeyPassphrase, setPrivateKeyPassphrase] = useState(
-    initial?.auth.type === "privateKey" || initial?.auth.type === "passwordAndPrivateKey"
-      ? (initial.auth.privateKeyPassphrase ?? "")
-      : "",
+    initialPrivateKeyPassphrase,
   );
 
   function submit(event: FormEvent) {
@@ -40,7 +47,8 @@ export function HostEditor({ initial, onSave }: Props) {
       port,
       username,
       auth: buildHostAuth({
-        authType,
+        usePassword,
+        usePrivateKey,
         password,
         privateKey,
         privateKeyPassphrase,
@@ -76,16 +84,26 @@ export function HostEditor({ initial, onSave }: Props) {
         onChange={(e) => setUsername(e.target.value)}
         required
       />
-      <label>Auth</label>
-      <select
-        value={authType}
-        onChange={(e) => setAuthType(e.target.value as HostAuthType)}
-      >
-        <option value="password">Password</option>
-        <option value="privateKey">Private key</option>
-        <option value="passwordAndPrivateKey">Password + private key</option>
-      </select>
-      {authType === "password" || authType === "passwordAndPrivateKey" ? (
+      <fieldset className="auth-methods">
+        <legend>Auth methods</legend>
+        <label className="auth-method">
+          <input
+            type="checkbox"
+            checked={usePassword}
+            onChange={(e) => setUsePassword(e.target.checked || !usePrivateKey)}
+          />
+          <span>Password</span>
+        </label>
+        <label className="auth-method">
+          <input
+            type="checkbox"
+            checked={usePrivateKey}
+            onChange={(e) => setUsePrivateKey(e.target.checked || !usePassword)}
+          />
+          <span>Private key</span>
+        </label>
+      </fieldset>
+      {usePassword ? (
         <>
           <label>Password</label>
           <input
@@ -95,7 +113,7 @@ export function HostEditor({ initial, onSave }: Props) {
           />
         </>
       ) : null}
-      {authType === "privateKey" || authType === "passwordAndPrivateKey" ? (
+      {usePrivateKey ? (
         <>
           <label>Private key</label>
           <textarea

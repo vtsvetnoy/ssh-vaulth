@@ -1,20 +1,24 @@
 import type { HostAuth } from "../types";
 
-export type HostAuthType = HostAuth["type"];
-
 type BuildHostAuthInput = {
-  authType: HostAuthType;
+  usePassword: boolean;
+  usePrivateKey: boolean;
   password: string;
   privateKey: string;
   privateKeyPassphrase: string;
 };
 
 export function buildHostAuth(input: BuildHostAuthInput): HostAuth {
-  if (input.authType === "password") {
-    return { type: "password", password: input.password };
+  if (input.usePassword && input.usePrivateKey) {
+    return {
+      type: "passwordAndPrivateKey",
+      password: input.password,
+      privateKey: input.privateKey,
+      privateKeyPassphrase: input.privateKeyPassphrase || undefined,
+    };
   }
 
-  if (input.authType === "privateKey") {
+  if (input.usePrivateKey) {
     return {
       type: "privateKey",
       privateKey: input.privateKey,
@@ -22,10 +26,9 @@ export function buildHostAuth(input: BuildHostAuthInput): HostAuth {
     };
   }
 
-  return {
-    type: "passwordAndPrivateKey",
-    password: input.password,
-    privateKey: input.privateKey,
-    privateKeyPassphrase: input.privateKeyPassphrase || undefined,
-  };
+  if (input.usePassword) {
+    return { type: "password", password: input.password };
+  }
+
+  return { type: "password", password: input.password };
 }
