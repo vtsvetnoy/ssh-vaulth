@@ -20,6 +20,17 @@ export type HostRecord = {
   updatedAt: string;
 };
 
+export type KeyRecord = {
+  id: string;
+  label: string;
+  privateKey: string;
+  passphrase?: string;
+  certificate?: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type TerminalTab = {
   id: string;
   host: HostRecord;
@@ -28,6 +39,7 @@ export type TerminalTab = {
 export type Vault = {
   schemaVersion: number;
   hosts: HostRecord[];
+  keys: KeyRecord[];
   updatedAt: string;
 };
 

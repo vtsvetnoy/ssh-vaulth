@@ -3,13 +3,14 @@ import { useMemo, useState } from "react";
 import { SyncClient } from "./api/client";
 import { HostEditor } from "./components/HostEditor";
 import { HostList } from "./components/HostList";
+import { HostsPanel } from "./components/HostsPanel";
 import { KeysPanel } from "./components/KeysPanel";
 import { LoginScreen } from "./components/LoginScreen";
 import { TerminalWorkspace } from "./components/TerminalWorkspace";
 import { UnlockScreen } from "./components/UnlockScreen";
 import { decryptVault, emptyVault, encryptVault } from "./crypto/vault";
 import { openHostTab } from "./terminal/tabs";
-import type { EncryptedVault, HostRecord, TerminalTab, Vault } from "./types";
+import type { EncryptedVault, HostRecord, KeyRecord, TerminalTab, Vault } from "./types";
 
 type Screen = "login" | "unlock" | "main";
 type MainView = "hosts" | "keys";
@@ -72,6 +73,20 @@ export function App() {
     setVersion(result.version);
     setEditing(false);
     setSelectedId(host.id);
+  }
+
+  async function saveKey(key: KeyRecord) {
+    if (!vault) return;
+    const nextVault = {
+      ...vault,
+      keys: [...(vault.keys ?? []), key],
+      updatedAt: new Date().toISOString(),
+    };
+    const encrypted = await encryptVault(nextVault, masterPassword);
+    const result = await client.putVault(version, encrypted);
+    setVault(nextVault);
+    setRemoteVault(encrypted);
+    setVersion(result.version);
   }
 
   function openTerminal(host: HostRecord) {
@@ -139,17 +154,31 @@ export function App() {
       />
 
       <section className="workspace" aria-label="Workspace">
-        {activeView === "keys" ? <KeysPanel /> : null}
+        {activeView === "keys" ? (
+          <KeysPanel keys={vault?.keys ?? []} onSave={saveKey} />
+        ) : null}
         {activeView === "hosts" && editing ? (
           <HostEditor initial={selected ?? undefined} onSave={saveHost} />
         ) : null}
         {activeView === "hosts" && !editing ? (
-          <TerminalWorkspace
-            activeId={activeTerminalId}
-            tabs={terminalTabs}
-            onActivate={setActiveTerminalId}
-            onClose={closeTerminal}
-          />
+          <div className="hosts-workspace">
+            <HostsPanel
+              hosts={vault?.hosts ?? []}
+              selectedId={selectedId}
+              onAdd={() => {
+                setSelectedId(null);
+                setEditing(true);
+              }}
+              onConnect={openTerminal}
+              onEdit={editHost}
+            />
+            <TerminalWorkspace
+              activeId={activeTerminalId}
+              tabs={terminalTabs}
+              onActivate={setActiveTerminalId}
+              onClose={closeTerminal}
+            />
+          </div>
         ) : null}
       </section>
     </main>

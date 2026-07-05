@@ -339,8 +339,15 @@ textarea:focus {
   display: grid;
   min-width: 0;
   min-height: 100vh;
-  place-items: center;
   padding: 40px;
+}
+
+.hosts-workspace {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  align-content: start;
+  gap: 18px;
 }
 
 .centered {
@@ -366,7 +373,11 @@ textarea:focus {
 
 .panel h1,
 .panel h2,
-.panel p {
+.panel p,
+.section-header h2,
+.section-header p,
+.empty-hosts p,
+.key-list p {
   margin: 0;
 }
 
@@ -386,6 +397,98 @@ textarea:focus {
   color: #94a3b8;
   font-size: 0.92rem;
   line-height: 1.45;
+}
+
+.section-header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-header div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.section-header h2 {
+  color: #f9fafb;
+  font-size: 1.2rem;
+}
+
+.section-header p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.compact-button {
+  min-width: 120px;
+  padding: 0 14px;
+}
+
+.hosts-panel {
+  display: grid;
+  width: 100%;
+  gap: 12px;
+}
+
+.host-history {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.host-card {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  border: 1px solid #253044;
+  border-radius: 8px;
+  background: #0f1724;
+  padding: 12px;
+}
+
+.host-card:hover,
+.host-card.active {
+  border-color: #247f68;
+  background: #10251f;
+}
+
+.host-card > button:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: #e5e7eb;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.host-card strong,
+.host-card span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.host-card span {
+  color: #94a3b8;
+  font-size: 0.84rem;
+}
+
+.empty-hosts {
+  display: grid;
+  min-height: 88px;
+  place-items: center;
+  border: 1px dashed #334155;
+  border-radius: 8px;
+  color: #94a3b8;
 }
 
 .editor {
@@ -443,8 +546,8 @@ textarea:focus {
 .terminal-workspace {
   display: grid;
   width: 100%;
-  height: calc(100vh - 80px);
-  min-height: 420px;
+  height: min(620px, calc(100vh - 250px));
+  min-height: 340px;
   grid-template-rows: auto minmax(0, 1fr);
 }
 
@@ -576,7 +679,51 @@ textarea:focus {
 }
 
 .keys-panel {
-  width: min(100%, 620px);
+  width: min(100%, 760px);
+  justify-self: center;
+}
+
+.key-form {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid #253044;
+  padding-top: 14px;
+}
+
+.compact-textarea {
+  min-height: 90px;
+}
+
+.key-list {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid #253044;
+  padding-top: 14px;
+}
+
+.key-list > p {
+  display: grid;
+  min-height: 76px;
+  place-items: center;
+  color: #94a3b8;
+}
+
+.key-row {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #253044;
+  border-radius: 8px;
+  background: #111827;
+  padding: 12px;
+}
+
+.key-row strong {
+  color: #f9fafb;
+}
+
+.key-row span {
+  color: #94a3b8;
+  font-size: 0.86rem;
 }
 
 @media (max-width: 720px) {
