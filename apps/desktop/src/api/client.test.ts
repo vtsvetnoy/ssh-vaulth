@@ -23,6 +23,15 @@ afterEach(() => {
 });
 
 describe("SyncClient", () => {
+  it("checks server health before auth", async () => {
+    const fetchMock = mockFetch({ status: "ok" });
+    const client = new SyncClient("https://sync.example.test");
+
+    await expect(client.health()).resolves.toEqual({ status: "ok" });
+
+    expect(fetchMock).toHaveBeenCalledWith("https://sync.example.test/health");
+  });
+
   it("logs in with the expected endpoint and payload", async () => {
     const fetchMock = mockFetch({ token: "session-token" });
     const client = new SyncClient("https://sync.example.test");

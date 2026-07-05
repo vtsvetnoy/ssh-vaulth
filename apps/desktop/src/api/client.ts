@@ -10,6 +10,12 @@ export class SyncClient {
     this.token = token;
   }
 
+  async health() {
+    const res = await fetch(`${this.baseUrl}/health`);
+    if (!res.ok) throw new Error("Sync API unavailable");
+    return (await res.json()) as { status: "ok" };
+  }
+
   async login(email: string, password: string, deviceName: string) {
     const res = await fetch(`${this.baseUrl}/auth/login`, {
       method: "POST",
