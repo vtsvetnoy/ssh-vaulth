@@ -9,6 +9,9 @@ name = "personal_ssh_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]
+personal-ssh-crypto = { path = "../../../packages/crypto" }
+serde.workspace = true
+serde_json.workspace = true
 tauri = { version = "2", features = [] }
 
 [build-dependencies]

@@ -2547,6 +2547,9 @@ dependencies = [
 name = "personal-ssh-desktop"
 version = "0.1.0"
 dependencies = [
+ "personal-ssh-crypto",
+ "serde",
+ "serde_json",
  "tauri",
  "tauri-build",
 ]

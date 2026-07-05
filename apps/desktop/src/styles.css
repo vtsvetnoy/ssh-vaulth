@@ -26,6 +26,42 @@ button {
   font: inherit;
 }
 
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid #cbd5df;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+}
+
+input,
+select {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+textarea {
+  min-height: 150px;
+  resize: vertical;
+  padding: 12px;
+}
+
+label {
+  color: #344054;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #1f6f5b;
+  outline: 3px solid rgba(31, 111, 91, 0.18);
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -97,11 +133,47 @@ button {
   font-weight: 700;
 }
 
-.add-host-button:hover {
+.primary-button,
+.secondary-button,
+.text-button {
+  min-height: 42px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.primary-button {
+  border: 0;
+  background: #1f6f5b;
+  color: #ffffff;
+}
+
+.secondary-button {
+  border: 1px solid #cbd5df;
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.text-button {
+  min-height: auto;
+  border: 0;
+  background: transparent;
+  color: #1f6f5b;
+}
+
+.add-host-button:hover,
+.primary-button:hover {
   background: #185a4a;
 }
 
-.add-host-button:focus-visible {
+.secondary-button:hover {
+  background: #eef1f4;
+}
+
+.add-host-button:focus-visible,
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.text-button:focus-visible {
   outline: 3px solid rgba(31, 111, 91, 0.28);
   outline-offset: 2px;
 }
@@ -112,13 +184,54 @@ button {
 }
 
 .host-list {
-  display: grid;
+  display: flex;
   min-height: 120px;
-  place-items: center;
+  flex-direction: column;
+  gap: 8px;
   border: 1px dashed #c9d1dc;
   border-radius: 8px;
   color: #667085;
   font-size: 0.92rem;
+  padding: 8px;
+}
+
+.host-list > p {
+  display: grid;
+  min-height: 96px;
+  place-items: center;
+}
+
+.host-row {
+  display: grid;
+  width: 100%;
+  min-height: 62px;
+  gap: 4px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #1f2937;
+  cursor: pointer;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.host-row:hover,
+.host-row.active {
+  border-color: #bdd7cd;
+  background: #edf7f3;
+}
+
+.host-row strong,
+.host-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.host-row span {
+  color: #667085;
+  font-size: 0.84rem;
 }
 
 .workspace {
@@ -127,6 +240,53 @@ button {
   min-height: 100vh;
   place-items: center;
   padding: 40px;
+}
+
+.centered {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  background: #f7f8fa;
+  padding: 28px;
+}
+
+.panel {
+  display: grid;
+  width: min(100%, 480px);
+  gap: 12px;
+  border: 1px solid #d9dee5;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+  padding: 24px;
+}
+
+.panel h1,
+.panel h2,
+.panel p {
+  margin: 0;
+}
+
+.panel h1 {
+  color: #111827;
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.panel h2 {
+  color: #111827;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.editor {
+  width: min(100%, 620px);
+}
+
+.error {
+  color: #b42318;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .empty-state {
