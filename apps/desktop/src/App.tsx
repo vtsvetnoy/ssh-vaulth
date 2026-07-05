@@ -4,6 +4,7 @@ import { SyncClient } from "./api/client";
 import { HostEditor } from "./components/HostEditor";
 import { HostList } from "./components/HostList";
 import { LoginScreen } from "./components/LoginScreen";
+import { SshTerminal } from "./components/SshTerminal";
 import { UnlockScreen } from "./components/UnlockScreen";
 import { decryptVault, emptyVault, encryptVault } from "./crypto/vault";
 import type { EncryptedVault, HostRecord, Vault } from "./types";
@@ -19,6 +20,7 @@ export function App() {
   const [vault, setVault] = useState<Vault | null>(null);
   const [masterPassword, setMasterPassword] = useState("");
   const [editing, setEditing] = useState(false);
+  const [terminalHost, setTerminalHost] = useState<HostRecord | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const client = useMemo(() => new SyncClient(serverUrl, token), [serverUrl, token]);
@@ -64,6 +66,7 @@ export function App() {
     setRemoteVault(encrypted);
     setVersion(result.version);
     setEditing(false);
+    setTerminalHost(null);
     setSelectedId(host.id);
   }
 
@@ -98,16 +101,23 @@ export function App() {
       />
 
       <section className="workspace" aria-label="Workspace">
-        {editing ? (
+        {terminalHost ? (
+          <SshTerminal host={terminalHost} onClose={() => setTerminalHost(null)} />
+        ) : null}
+        {!terminalHost && editing ? (
           <HostEditor initial={selected ?? undefined} onSave={saveHost} />
         ) : null}
-        {!editing && selected ? (
+        {!terminalHost && !editing && selected ? (
           <div className="panel">
             <h1>{selected.label}</h1>
             <p>
               {selected.username}@{selected.hostname}:{selected.port}
             </p>
-            <button className="primary-button" type="button">
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => setTerminalHost(selected)}
+            >
               Connect
             </button>
             <button
@@ -119,7 +129,7 @@ export function App() {
             </button>
           </div>
         ) : null}
-        {!editing && !selected ? (
+        {!terminalHost && !editing && !selected ? (
           <div className="empty-state">
             <p>Select or add a host to start a secure session.</p>
           </div>
