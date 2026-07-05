@@ -11,7 +11,7 @@ import { RecentConnections } from "./components/RecentConnections";
 import { TerminalWorkspace } from "./components/TerminalWorkspace";
 import { UnlockScreen } from "./components/UnlockScreen";
 import { decryptVault, emptyVault, encryptVault } from "./crypto/vault";
-import { openHostTab } from "./terminal/tabs";
+import { openBlankTab, openHostTab } from "./terminal/tabs";
 import type { EncryptedVault, HostRecord, KeyRecord, TerminalTab, Vault } from "./types";
 
 type Screen = "login" | "unlock" | "main";
@@ -95,13 +95,21 @@ export function App() {
   }
 
   function openTerminal(host: HostRecord) {
-    const result = openHostTab(terminalTabs, host);
+    const result = openHostTab(terminalTabs, host, activeTerminalId);
     setTerminalTabs(result.tabs);
     setActiveTerminalId(result.activeId);
     setSelectedId(host.id);
     setEditing(false);
     setActiveView("hosts");
     setHomeMode("vault");
+  }
+
+  function openNewTab() {
+    const result = openBlankTab(terminalTabs);
+    setTerminalTabs(result.tabs);
+    setActiveTerminalId(result.activeId);
+    setEditing(false);
+    setHomeMode("recent");
   }
 
   function closeTerminal(tabId: string) {
@@ -139,6 +147,7 @@ export function App() {
   }
 
   const selected = vault?.hosts.find((host) => host.id === selectedId);
+  const activeTab = terminalTabs.find((tab) => tab.id === activeTerminalId) ?? null;
 
   return (
     <main className="app-shell">
@@ -161,11 +170,7 @@ export function App() {
           onActivate={(id) => {
             setActiveTerminalId(id);
           }}
-          onNewTab={() => {
-            setActiveTerminalId(null);
-            setEditing(false);
-            setHomeMode("recent");
-          }}
+          onNewTab={openNewTab}
           onVaultToggle={() => {
             setActiveTerminalId(null);
             setEditing(false);
@@ -176,12 +181,24 @@ export function App() {
           onClose={closeTerminal}
         />
         <div className="workspace-body">
-          {activeTerminalId ? (
+          {activeTab?.host ? (
             <TerminalWorkspace
               activeId={activeTerminalId}
               tabs={terminalTabs}
               onActivate={setActiveTerminalId}
               onClose={closeTerminal}
+            />
+          ) : null}
+          {activeTerminalId && !activeTab?.host ? (
+            <RecentConnections
+              hosts={vault?.hosts ?? []}
+              onConnect={openTerminal}
+              onOpenVault={() => {
+                setActiveTerminalId(null);
+                setHomeMode("vault");
+                setActiveView("hosts");
+                setVaultExpanded(true);
+              }}
             />
           ) : null}
           {!activeTerminalId && homeMode === "recent" ? (

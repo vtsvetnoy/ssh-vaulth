@@ -27,11 +27,13 @@ export function TerminalWorkspace({ tabs, activeId, onActivate, onClose }: Props
               tab.id === activeId ? "terminal-panel-slot active" : "terminal-panel-slot"
             }
           >
-            <SshTerminal
-              active={tab.id === activeId}
-              host={tab.host}
-              onClose={() => onClose(tab.id)}
-            />
+            {tab.host ? (
+              <SshTerminal
+                active={tab.id === activeId}
+                host={tab.host}
+                onClose={() => onClose(tab.id)}
+              />
+            ) : null}
           </div>
         ))}
       </div>

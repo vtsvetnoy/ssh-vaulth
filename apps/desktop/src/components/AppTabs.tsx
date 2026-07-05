@@ -31,9 +31,13 @@ export function AppTabs({
       {tabs.map((tab) => (
         <div className={tab.id === activeId ? "app-tab active" : "app-tab"} key={tab.id}>
           <button type="button" onClick={() => onActivate(tab.id)}>
-            {tab.host.label}
+            {tab.host?.label ?? "New Tab"}
           </button>
-          <button type="button" aria-label={`Close ${tab.host.label}`} onClick={() => onClose(tab.id)}>
+          <button
+            type="button"
+            aria-label={`Close ${tab.host?.label ?? "New Tab"}`}
+            onClick={() => onClose(tab.id)}
+          >
             x
           </button>
         </div>

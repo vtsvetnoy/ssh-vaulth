@@ -35,7 +35,7 @@ export type KeyRecord = {
 
 export type TerminalTab = {
   id: string;
-  host: HostRecord;
+  host?: HostRecord;
 };
 
 export type Vault = {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { openHostTab } from "./tabs";
+import { openBlankTab, openHostTab } from "./tabs";
 import type { HostRecord, TerminalTab } from "../types";
 
 const host: HostRecord = {
@@ -19,10 +19,27 @@ describe("openHostTab", () => {
   it("opens another terminal tab for the same saved host", () => {
     const existing: TerminalTab[] = [{ id: "tab-1", host }];
 
-    const result = openHostTab(existing, host, () => "tab-2");
+    const result = openHostTab(existing, host, null, () => "tab-2");
 
     expect(result.tabs).toHaveLength(2);
     expect(result.tabs[1]).toEqual({ id: "tab-2", host });
     expect(result.activeId).toBe("tab-2");
+  });
+
+  it("opens multiple blank tabs", () => {
+    const first = openBlankTab([], () => "new-1");
+    const second = openBlankTab(first.tabs, () => "new-2");
+
+    expect(second.tabs).toEqual([{ id: "new-1" }, { id: "new-2" }]);
+    expect(second.activeId).toBe("new-2");
+  });
+
+  it("turns the active blank tab into a host tab", () => {
+    const existing: TerminalTab[] = [{ id: "new-1" }, { id: "new-2" }];
+
+    const result = openHostTab(existing, host, "new-2", () => "unused");
+
+    expect(result.tabs).toEqual([{ id: "new-1" }, { id: "new-2", host }]);
+    expect(result.activeId).toBe("new-2");
   });
 });
