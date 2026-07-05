@@ -138,21 +138,6 @@ textarea:focus {
   font-size: 0.86rem;
 }
 
-.add-host-button {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 0;
-  border-radius: 8px;
-  background: #1f8f73;
-  color: #ffffff;
-  cursor: pointer;
-  font-weight: 700;
-  margin: 0 10px;
-}
-
 .sidebar-nav {
   display: grid;
   gap: 8px;
@@ -230,7 +215,6 @@ textarea:focus {
   color: #5ee0ba;
 }
 
-.add-host-button:hover,
 .primary-button:hover {
   background: #19745e;
 }
@@ -244,18 +228,12 @@ textarea:focus {
   color: #8ff0d3;
 }
 
-.add-host-button:focus-visible,
 .primary-button:focus-visible,
 .secondary-button:focus-visible,
 .sync-check:focus-visible,
 .text-button:focus-visible {
   outline: 3px solid rgba(36, 164, 127, 0.3);
   outline-offset: 2px;
-}
-
-.add-host-button span {
-  font-size: 1.25rem;
-  line-height: 1;
 }
 
 .host-card-content {
@@ -296,6 +274,84 @@ textarea:focus {
   min-height: 0;
   overflow: hidden;
   background: #171b2a;
+}
+
+.recent-screen {
+  display: grid;
+  min-height: 100%;
+  align-content: start;
+  justify-content: center;
+  gap: 22px;
+  overflow: auto;
+  padding: 48px 24px;
+}
+
+.recent-search {
+  width: min(720px, 100%);
+}
+
+.recent-list {
+  display: grid;
+  width: min(720px, 100%);
+  gap: 8px;
+  border-radius: 10px;
+  background: #2a2f43;
+  padding: 14px;
+}
+
+.recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0 8px;
+}
+
+.recent-header h2,
+.recent-list p {
+  margin: 0;
+}
+
+.recent-header h2 {
+  color: #f9fafb;
+  font-size: 1rem;
+}
+
+.recent-list p {
+  color: #a5adbf;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.recent-row {
+  display: grid;
+  min-height: 46px;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #33384d;
+  color: #f9fafb;
+  cursor: pointer;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.recent-row:hover {
+  background: #3d445c;
+}
+
+.recent-row .host-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  font-size: 0.58rem;
+}
+
+.recent-row span:last-child {
+  color: #a5adbf;
+  font-size: 0.84rem;
 }
 
 .hosts-workspace {
@@ -501,9 +557,19 @@ textarea:focus {
 .group-card {
   display: grid;
   gap: 4px;
+  border: 1px solid transparent;
   border-radius: 10px;
   background: #2a2f43;
+  color: inherit;
+  cursor: pointer;
   padding: 16px;
+  text-align: left;
+}
+
+.group-card:hover,
+.group-card.active {
+  border-color: #2396ff;
+  background: #30364a;
 }
 
 .group-card strong {

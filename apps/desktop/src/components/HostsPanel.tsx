@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react";
+
 import type { HostRecord } from "../types";
 
 type Props = {
@@ -17,14 +19,31 @@ export function HostsPanel({
   onConnect,
   onEdit,
 }: Props) {
+  const [activeGroup, setActiveGroup] = useState<string | null>(null);
   const selected = hosts.find((host) => host.id === selectedId) ?? hosts[0] ?? null;
-  const groups = Array.from(
-    hosts.reduce((items, host) => {
-      const group = host.group?.trim() || "Personal";
-      items.set(group, (items.get(group) ?? 0) + 1);
-      return items;
-    }, new Map<string, number>()),
+  const groups = useMemo(
+    () => Array.from(
+      hosts.reduce((items, host) => {
+        const group = host.group?.trim() || "Personal";
+        items.set(group, (items.get(group) ?? 0) + 1);
+        return items;
+      }, new Map<string, number>()),
+    ),
+    [hosts],
   );
+  const visibleHosts = activeGroup
+    ? hosts.filter((host) => (host.group?.trim() || "Personal") === activeGroup)
+    : hosts;
+
+  function selectGroup(group: string | null) {
+    setActiveGroup(group);
+    const nextHost = group
+      ? hosts.find((host) => (host.group?.trim() || "Personal") === group)
+      : hosts[0];
+    if (nextHost) onSelect(nextHost.id);
+  }
+
+  const groupLabel = selected?.group?.trim() || "Personal";
 
   return (
     <section className="vault-layout" aria-label="Vault hosts">
@@ -50,11 +69,26 @@ export function HostsPanel({
           <h2>Groups</h2>
           <div className="group-grid">
             {groups.length === 0 ? <p>No groups yet</p> : null}
+            {groups.length > 0 ? (
+              <button
+                className={activeGroup === null ? "group-card active" : "group-card"}
+                type="button"
+                onClick={() => selectGroup(null)}
+              >
+                <strong>All hosts</strong>
+                <span>{hosts.length} Host{hosts.length === 1 ? "" : "s"}</span>
+              </button>
+            ) : null}
             {groups.map(([group, count]) => (
-              <div className="group-card" key={group}>
+              <button
+                className={activeGroup === group ? "group-card active" : "group-card"}
+                key={group}
+                type="button"
+                onClick={() => selectGroup(group)}
+              >
                 <strong>{group}</strong>
                 <span>{count} Host{count === 1 ? "" : "s"}</span>
-              </div>
+              </button>
             ))}
           </div>
           <h2>Hosts</h2>
@@ -64,7 +98,7 @@ export function HostsPanel({
             </div>
           ) : (
             <div className="vault-host-grid" aria-label="Saved hosts">
-              {hosts.map((host) => (
+              {visibleHosts.map((host) => (
                 <button
                   className={host.id === selected?.id ? "vault-host-card active" : "vault-host-card"}
                   key={host.id}
@@ -108,7 +142,7 @@ export function HostsPanel({
             <section className="details-card">
               <h3>General</h3>
               <div className="detail-field">{selected.label}</div>
-              <div className="detail-field">{selected.group || "Personal"}</div>
+              <div className="detail-field">{groupLabel}</div>
             </section>
             <section className="details-card">
               <h3>SSH on <span>{selected.port}</span> port</h3>

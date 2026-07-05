@@ -1,12 +1,12 @@
 type Props = {
   activeView: "hosts" | "keys";
-  onAdd: () => void;
+  expanded: boolean;
   onViewChange: (view: "hosts" | "keys") => void;
 };
 
 export function HostList({
   activeView,
-  onAdd,
+  expanded,
   onViewChange,
 }: Props) {
   return (
@@ -20,26 +20,26 @@ export function HostList({
           <p>Personal SSH client</p>
         </div>
       </div>
-      <nav className="sidebar-nav" aria-label="Vault sections">
-        <button
-          className={activeView === "hosts" ? "nav-item active" : "nav-item"}
-          type="button"
-          onClick={() => onViewChange("hosts")}
-        >
-          Hosts
-        </button>
-        <button
-          className={activeView === "keys" ? "nav-item active" : "nav-item"}
-          type="button"
-          onClick={() => onViewChange("keys")}
-        >
-          Keys & Certificates
-        </button>
-      </nav>
-      <button className="add-host-button" type="button" onClick={onAdd}>
-        <span aria-hidden="true">+</span>
-        Add Host
-      </button>
+      {expanded ? (
+        <>
+          <nav className="sidebar-nav" aria-label="Vault sections">
+            <button
+              className={activeView === "hosts" ? "nav-item active" : "nav-item"}
+              type="button"
+              onClick={() => onViewChange("hosts")}
+            >
+              Hosts
+            </button>
+            <button
+              className={activeView === "keys" ? "nav-item active" : "nav-item"}
+              type="button"
+              onClick={() => onViewChange("keys")}
+            >
+              Keys & Certificates
+            </button>
+          </nav>
+        </>
+      ) : null}
     </aside>
   );
 }

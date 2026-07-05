@@ -2,18 +2,29 @@ import type { TerminalTab } from "../types";
 
 type Props = {
   activeId: string | null;
+  homeMode: "vault" | "recent";
   tabs: TerminalTab[];
-  onActivate: (id: string | null) => void;
+  onActivate: (id: string) => void;
   onClose: (id: string) => void;
+  onNewTab: () => void;
+  onVaultToggle: () => void;
 };
 
-export function AppTabs({ activeId, tabs, onActivate, onClose }: Props) {
+export function AppTabs({
+  activeId,
+  homeMode,
+  tabs,
+  onActivate,
+  onClose,
+  onNewTab,
+  onVaultToggle,
+}: Props) {
   return (
     <div className="app-tabs" aria-label="Open sessions">
       <button
-        className={activeId === null ? "app-tab active" : "app-tab"}
+        className={activeId === null && homeMode === "vault" ? "app-tab active" : "app-tab"}
         type="button"
-        onClick={() => onActivate(null)}
+        onClick={onVaultToggle}
       >
         Vaults
       </button>
@@ -27,10 +38,14 @@ export function AppTabs({ activeId, tabs, onActivate, onClose }: Props) {
           </button>
         </div>
       ))}
-      <button className="app-tab new-tab" type="button" onClick={() => onActivate(null)}>
+      <button
+        className={activeId === null && homeMode === "recent" ? "app-tab new-tab active" : "app-tab new-tab"}
+        type="button"
+        onClick={onNewTab}
+      >
         New Tab
       </button>
-      <button className="app-tab plus-tab" type="button" onClick={() => onActivate(null)}>
+      <button className="app-tab plus-tab" type="button" onClick={onNewTab}>
         +
       </button>
     </div>

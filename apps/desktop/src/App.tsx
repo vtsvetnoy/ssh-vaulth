@@ -7,6 +7,7 @@ import { HostList } from "./components/HostList";
 import { HostsPanel } from "./components/HostsPanel";
 import { KeysPanel } from "./components/KeysPanel";
 import { LoginScreen } from "./components/LoginScreen";
+import { RecentConnections } from "./components/RecentConnections";
 import { TerminalWorkspace } from "./components/TerminalWorkspace";
 import { UnlockScreen } from "./components/UnlockScreen";
 import { decryptVault, emptyVault, encryptVault } from "./crypto/vault";
@@ -15,6 +16,7 @@ import type { EncryptedVault, HostRecord, KeyRecord, TerminalTab, Vault } from "
 
 type Screen = "login" | "unlock" | "main";
 type MainView = "hosts" | "keys";
+type HomeMode = "vault" | "recent";
 
 export function App() {
   const [screen, setScreen] = useState<Screen>("login");
@@ -25,6 +27,8 @@ export function App() {
   const [vault, setVault] = useState<Vault | null>(null);
   const [masterPassword, setMasterPassword] = useState("");
   const [activeView, setActiveView] = useState<MainView>("hosts");
+  const [homeMode, setHomeMode] = useState<HomeMode>("vault");
+  const [vaultExpanded, setVaultExpanded] = useState(true);
   const [editing, setEditing] = useState(false);
   const [terminalTabs, setTerminalTabs] = useState<TerminalTab[]>([]);
   const [activeTerminalId, setActiveTerminalId] = useState<string | null>(null);
@@ -97,6 +101,7 @@ export function App() {
     setSelectedId(host.id);
     setEditing(false);
     setActiveView("hosts");
+    setHomeMode("vault");
   }
 
   function closeTerminal(tabId: string) {
@@ -139,15 +144,11 @@ export function App() {
     <main className="app-shell">
       <HostList
         activeView={activeView}
-        onAdd={() => {
-          setSelectedId(null);
-          setEditing(true);
-          setActiveView("hosts");
-          setActiveTerminalId(null);
-        }}
+        expanded={vaultExpanded}
         onViewChange={(view) => {
           setActiveView(view);
           setEditing(false);
+          setHomeMode("vault");
           setActiveTerminalId(null);
         }}
       />
@@ -155,13 +156,22 @@ export function App() {
       <section className="workspace" aria-label="Workspace">
         <AppTabs
           activeId={activeTerminalId}
+          homeMode={homeMode}
           tabs={terminalTabs}
           onActivate={(id) => {
             setActiveTerminalId(id);
-            if (id === null) {
-              setEditing(false);
-              setActiveView("hosts");
-            }
+          }}
+          onNewTab={() => {
+            setActiveTerminalId(null);
+            setEditing(false);
+            setHomeMode("recent");
+          }}
+          onVaultToggle={() => {
+            setActiveTerminalId(null);
+            setEditing(false);
+            setActiveView("hosts");
+            setHomeMode("vault");
+            setVaultExpanded((expanded) => !expanded);
           }}
           onClose={closeTerminal}
         />
@@ -174,13 +184,24 @@ export function App() {
               onClose={closeTerminal}
             />
           ) : null}
-          {!activeTerminalId && activeView === "keys" ? (
+          {!activeTerminalId && homeMode === "recent" ? (
+            <RecentConnections
+              hosts={vault?.hosts ?? []}
+              onConnect={openTerminal}
+              onOpenVault={() => {
+                setHomeMode("vault");
+                setActiveView("hosts");
+                setVaultExpanded(true);
+              }}
+            />
+          ) : null}
+          {!activeTerminalId && homeMode === "vault" && activeView === "keys" ? (
             <KeysPanel keys={vault?.keys ?? []} onSave={saveKey} />
           ) : null}
-          {!activeTerminalId && activeView === "hosts" && editing ? (
+          {!activeTerminalId && homeMode === "vault" && activeView === "hosts" && editing ? (
             <HostEditor initial={selected ?? undefined} onSave={saveHost} />
           ) : null}
-          {!activeTerminalId && activeView === "hosts" && !editing ? (
+          {!activeTerminalId && homeMode === "vault" && activeView === "hosts" && !editing ? (
             <HostsPanel
               hosts={vault?.hosts ?? []}
               selectedId={selectedId}
