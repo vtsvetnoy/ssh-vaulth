@@ -21,7 +21,12 @@ export function UnlockScreen({ hasRemoteVault, onUnlock }: Props) {
 
   return (
     <form className="panel" onSubmit={submit}>
-      <h1>{hasRemoteVault ? "Unlock vault" : "Create vault"}</h1>
+      <h1>Open vault</h1>
+      <p className="panel-note">
+        {hasRemoteVault
+          ? "Enter the master password for this encrypted vault."
+          : "Enter a master password to open your private encrypted vault."}
+      </p>
       <label>Master password</label>
       <input
         type="password"
