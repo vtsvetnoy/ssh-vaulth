@@ -1,3 +1,5 @@
+import type { KeyboardEvent } from "react";
+
 import type { HostRecord } from "../types";
 
 type Props = {
@@ -15,6 +17,12 @@ export function HostsPanel({
   onConnect,
   onEdit,
 }: Props) {
+  function connectWithKeyboard(event: KeyboardEvent<HTMLElement>, host: HostRecord) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    onConnect(host);
+  }
+
   return (
     <section className="hosts-panel" aria-label="Saved hosts">
       <div className="section-header">
@@ -36,17 +44,24 @@ export function HostsPanel({
             <article
               className={host.id === selectedId ? "host-card active" : "host-card"}
               key={host.id}
+              onClick={() => onConnect(host)}
+              onKeyDown={(event) => connectWithKeyboard(event, host)}
+              role="button"
+              tabIndex={0}
             >
-              <button type="button" onClick={() => onConnect(host)}>
+              <div className="host-card-content">
                 <strong>{host.label}</strong>
                 <span>
                   {host.username}@{host.hostname}:{host.port}
                 </span>
-              </button>
+              </div>
               <button
                 className="host-edit-button"
                 type="button"
-                onClick={() => onEdit(host.id)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEdit(host.id);
+                }}
               >
                 Edit
               </button>

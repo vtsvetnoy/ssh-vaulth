@@ -1,3 +1,5 @@
+import type { KeyboardEvent } from "react";
+
 import type { HostRecord } from "../types";
 
 type Props = {
@@ -19,6 +21,12 @@ export function HostList({
   onEdit,
   onViewChange,
 }: Props) {
+  function connectWithKeyboard(event: KeyboardEvent<HTMLElement>, host: HostRecord) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    onConnect(host);
+  }
+
   return (
     <aside className="sidebar" aria-label="Hosts">
       <div className="brand">
@@ -56,17 +64,24 @@ export function HostList({
           <div
             key={host.id}
             className={host.id === selectedId ? "host-row active" : "host-row"}
+            onClick={() => onConnect(host)}
+            onKeyDown={(event) => connectWithKeyboard(event, host)}
+            role="button"
+            tabIndex={0}
           >
-            <button type="button" onClick={() => onConnect(host)}>
+            <div className="host-card-content">
               <strong>{host.label}</strong>
               <span>
                 {host.username}@{host.hostname}:{host.port}
               </span>
-            </button>
+            </div>
             <button
               className="host-edit-button"
               type="button"
-              onClick={() => onEdit(host.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(host.id);
+              }}
             >
               Edit
             </button>

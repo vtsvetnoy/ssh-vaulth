@@ -23,6 +23,7 @@ export type HostRecord = {
 export type KeyRecord = {
   id: string;
   label: string;
+  publicKey?: string;
   privateKey: string;
   passphrase?: string;
   certificate?: string;

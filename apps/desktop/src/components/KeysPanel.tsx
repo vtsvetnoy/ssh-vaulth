@@ -11,6 +11,7 @@ export function KeysPanel({ keys, onSave }: Props) {
   const now = new Date().toISOString();
   const [adding, setAdding] = useState(false);
   const [label, setLabel] = useState("");
+  const [publicKey, setPublicKey] = useState("");
   const [privateKey, setPrivateKey] = useState("");
   const [passphrase, setPassphrase] = useState("");
   const [certificate, setCertificate] = useState("");
@@ -26,6 +27,7 @@ export function KeysPanel({ keys, onSave }: Props) {
       await onSave({
         id: crypto.randomUUID(),
         label,
+        publicKey: publicKey || undefined,
         privateKey,
         passphrase: passphrase || undefined,
         certificate: certificate || undefined,
@@ -34,6 +36,7 @@ export function KeysPanel({ keys, onSave }: Props) {
         updatedAt: now,
       });
       setLabel("");
+      setPublicKey("");
       setPrivateKey("");
       setPassphrase("");
       setCertificate("");
@@ -65,6 +68,12 @@ export function KeysPanel({ keys, onSave }: Props) {
         <form className="key-form" onSubmit={submit}>
           <label>Label</label>
           <input value={label} onChange={(e) => setLabel(e.target.value)} required />
+          <label>Public key</label>
+          <textarea
+            className="compact-textarea"
+            value={publicKey}
+            onChange={(e) => setPublicKey(e.target.value)}
+          />
           <label>Private key</label>
           <textarea
             value={privateKey}
@@ -101,7 +110,13 @@ export function KeysPanel({ keys, onSave }: Props) {
           <article className="key-row" key={key.id}>
             <strong>{key.label}</strong>
             <span>
-              {key.certificate ? "Private key + certificate" : "Private key"}
+              {[
+                key.publicKey ? "public key" : null,
+                "private key",
+                key.certificate ? "certificate" : null,
+              ]
+                .filter(Boolean)
+                .join(" + ")}
             </span>
           </article>
         ))}

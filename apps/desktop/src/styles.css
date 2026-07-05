@@ -288,15 +288,11 @@ textarea:focus {
   padding: 10px 12px;
 }
 
-.host-row > button:first-child {
+.host-card-content {
   display: grid;
   min-width: 0;
   gap: 4px;
-  border: 0;
-  background: transparent;
   color: inherit;
-  cursor: pointer;
-  padding: 0;
   text-align: left;
 }
 
@@ -448,6 +444,7 @@ textarea:focus {
   border: 1px solid #253044;
   border-radius: 8px;
   background: #0f1724;
+  cursor: pointer;
   padding: 12px;
 }
 
@@ -455,18 +452,6 @@ textarea:focus {
 .host-card.active {
   border-color: #247f68;
   background: #10251f;
-}
-
-.host-card > button:first-child {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
-  border: 0;
-  background: transparent;
-  color: #e5e7eb;
-  cursor: pointer;
-  padding: 0;
-  text-align: left;
 }
 
 .host-card strong,

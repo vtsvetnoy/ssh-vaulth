@@ -31,5 +31,7 @@ describe("HostsPanel", () => {
     expect(html).toContain("office");
     expect(html).toContain("deploy@office.example.test:22");
     expect(html).toContain("1 saved connection");
+    expect(html).toContain("role=\"button\"");
+    expect(html).toContain("tabindex=\"0\"");
   });
 });

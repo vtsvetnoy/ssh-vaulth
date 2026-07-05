@@ -7,6 +7,7 @@ import { KeysPanel } from "./KeysPanel";
 const key: KeyRecord = {
   id: "key-1",
   label: "oracle",
+  publicKey: "ssh-rsa AAAA",
   privateKey: "-----BEGIN OPENSSH PRIVATE KEY-----",
   notes: "",
   createdAt: "2026-07-05T00:00:00.000Z",
@@ -21,6 +22,7 @@ describe("KeysPanel", () => {
 
     expect(html).toContain("+ Add key");
     expect(html).toContain("oracle");
+    expect(html).toContain("public key + private key");
     expect(html).not.toContain("disabled");
   });
 });
