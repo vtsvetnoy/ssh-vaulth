@@ -5,7 +5,7 @@ import { buildHostAuth } from "./hostAuth";
 
 type Props = {
   initial?: HostRecord;
-  onSave: (host: HostRecord) => void;
+  onSave: (host: HostRecord) => Promise<void> | void;
 };
 
 export function HostEditor({ initial, onSave }: Props) {
@@ -37,26 +37,36 @@ export function HostEditor({ initial, onSave }: Props) {
   const [privateKeyPassphrase, setPrivateKeyPassphrase] = useState(
     initialPrivateKeyPassphrase,
   );
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
-    onSave({
-      id: initial?.id ?? crypto.randomUUID(),
-      label,
-      hostname,
-      port,
-      username,
-      auth: buildHostAuth({
-        usePassword,
-        usePrivateKey,
-        password,
-        privateKey,
-        privateKeyPassphrase,
-      }),
-      notes: initial?.notes ?? "",
-      createdAt: initial?.createdAt ?? now,
-      updatedAt: now,
-    });
+    setError("");
+    setSaving(true);
+    try {
+      await onSave({
+        id: initial?.id ?? crypto.randomUUID(),
+        label,
+        hostname,
+        port,
+        username,
+        auth: buildHostAuth({
+          usePassword,
+          usePrivateKey,
+          password,
+          privateKey,
+          privateKeyPassphrase,
+        }),
+        notes: initial?.notes ?? "",
+        createdAt: initial?.createdAt ?? now,
+        updatedAt: now,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Host save failed");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -128,8 +138,9 @@ export function HostEditor({ initial, onSave }: Props) {
           />
         </>
       ) : null}
-      <button className="primary-button" type="submit">
-        Save
+      {error && <p className="error">{error}</p>}
+      <button className="primary-button" type="submit" disabled={saving}>
+        {saving ? "Saving" : "Save"}
       </button>
     </form>
   );

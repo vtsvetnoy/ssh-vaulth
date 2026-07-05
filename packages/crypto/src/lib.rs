@@ -63,7 +63,14 @@ pub enum HostAuth {
     },
     PrivateKey {
         private_key: String,
-        passphrase: Option<String>,
+        #[serde(default, alias = "passphrase")]
+        private_key_passphrase: Option<String>,
+    },
+    PasswordAndPrivateKey {
+        password: String,
+        private_key: String,
+        #[serde(default, alias = "passphrase")]
+        private_key_passphrase: Option<String>,
     },
 }
 

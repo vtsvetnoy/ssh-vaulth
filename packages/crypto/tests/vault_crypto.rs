@@ -38,6 +38,21 @@ fn round_trips_vault_equality() {
 }
 
 #[test]
+fn round_trips_password_and_private_key_auth() {
+    let mut vault = sample_vault();
+    vault.hosts[0].auth = HostAuth::PasswordAndPrivateKey {
+        password: "server-password".to_string(),
+        private_key: "-----BEGIN PRIVATE KEY-----".to_string(),
+        private_key_passphrase: Some("key-passphrase".to_string()),
+    };
+
+    let encrypted = encrypt_vault(&vault, "master-pass").unwrap();
+    let decrypted = decrypt_vault(&encrypted, "master-pass").unwrap();
+
+    assert_eq!(decrypted, vault);
+}
+
+#[test]
 fn encrypts_with_expected_salt_and_nonce_lengths() {
     let encrypted = encrypt_vault(&sample_vault(), "master-pass").unwrap();
     let salt = STANDARD.decode(&encrypted.salt).unwrap();
