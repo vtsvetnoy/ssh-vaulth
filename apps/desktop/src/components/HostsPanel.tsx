@@ -102,8 +102,10 @@ export function HostsPanel({
                 <button
                   className={host.id === selected?.id ? "vault-host-card active" : "vault-host-card"}
                   key={host.id}
+                  title={`Double-click to connect to ${host.label}`}
                   type="button"
                   onClick={() => onSelect(host.id)}
+                  onDoubleClick={() => onConnect(host)}
                 >
                   <span className="host-icon">ssh</span>
                   <span>

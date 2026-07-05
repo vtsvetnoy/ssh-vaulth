@@ -37,5 +37,6 @@ describe("HostsPanel", () => {
     expect(html).toContain("office.example.test");
     expect(html).toContain("SSH on <span>22</span> port");
     expect(html).toContain("Connect");
+    expect(html).toContain("Double-click to connect to office");
   });
 });
