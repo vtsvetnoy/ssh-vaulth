@@ -17,6 +17,7 @@ export async function startSshSession(host: HostRecord) {
       hostname: host.hostname,
       port: host.port,
       username: host.username,
+      auth: host.auth,
     },
   });
 }

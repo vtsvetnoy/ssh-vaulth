@@ -14,11 +14,12 @@ import {
 import type { HostRecord } from "../types";
 
 type Props = {
+  active: boolean;
   host: HostRecord;
   onClose: () => void;
 };
 
-export function SshTerminal({ host, onClose }: Props) {
+export function SshTerminal({ active, host, onClose }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const terminalRef = useRef<Terminal | null>(null);
   const fitRef = useRef<FitAddon | null>(null);
@@ -74,7 +75,7 @@ export function SshTerminal({ host, onClose }: Props) {
       try {
         const sessionId = await startSshSession(host);
         sessionIdRef.current = sessionId;
-        setStatus("Connected");
+        setStatus("SSH started");
       } catch (err) {
         setStatus("Failed");
         terminal.writeln("");
@@ -98,6 +99,12 @@ export function SshTerminal({ host, onClose }: Props) {
       sessionIdRef.current = null;
     };
   }, [host]);
+
+  useEffect(() => {
+    if (active) {
+      window.setTimeout(() => fitRef.current?.fit(), 0);
+    }
+  }, [active]);
 
   return (
     <div className="terminal-panel">

@@ -20,6 +20,11 @@ export type HostRecord = {
   updatedAt: string;
 };
 
+export type TerminalTab = {
+  id: string;
+  host: HostRecord;
+};
+
 export type Vault = {
   schemaVersion: number;
   hosts: HostRecord[];

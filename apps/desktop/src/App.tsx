@@ -3,13 +3,16 @@ import { useMemo, useState } from "react";
 import { SyncClient } from "./api/client";
 import { HostEditor } from "./components/HostEditor";
 import { HostList } from "./components/HostList";
+import { KeysPanel } from "./components/KeysPanel";
 import { LoginScreen } from "./components/LoginScreen";
-import { SshTerminal } from "./components/SshTerminal";
+import { TerminalWorkspace } from "./components/TerminalWorkspace";
 import { UnlockScreen } from "./components/UnlockScreen";
 import { decryptVault, emptyVault, encryptVault } from "./crypto/vault";
-import type { EncryptedVault, HostRecord, Vault } from "./types";
+import { openHostTab } from "./terminal/tabs";
+import type { EncryptedVault, HostRecord, TerminalTab, Vault } from "./types";
 
 type Screen = "login" | "unlock" | "main";
+type MainView = "hosts" | "keys";
 
 export function App() {
   const [screen, setScreen] = useState<Screen>("login");
@@ -19,8 +22,10 @@ export function App() {
   const [remoteVault, setRemoteVault] = useState<EncryptedVault | null>(null);
   const [vault, setVault] = useState<Vault | null>(null);
   const [masterPassword, setMasterPassword] = useState("");
+  const [activeView, setActiveView] = useState<MainView>("hosts");
   const [editing, setEditing] = useState(false);
-  const [terminalHost, setTerminalHost] = useState<HostRecord | null>(null);
+  const [terminalTabs, setTerminalTabs] = useState<TerminalTab[]>([]);
+  const [activeTerminalId, setActiveTerminalId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const client = useMemo(() => new SyncClient(serverUrl, token), [serverUrl, token]);
@@ -66,8 +71,34 @@ export function App() {
     setRemoteVault(encrypted);
     setVersion(result.version);
     setEditing(false);
-    setTerminalHost(null);
     setSelectedId(host.id);
+  }
+
+  function openTerminal(host: HostRecord) {
+    const result = openHostTab(terminalTabs, host);
+    setTerminalTabs(result.tabs);
+    setActiveTerminalId(result.activeId);
+    setSelectedId(host.id);
+    setEditing(false);
+    setActiveView("hosts");
+  }
+
+  function closeTerminal(tabId: string) {
+    setTerminalTabs((tabs) => {
+      const index = tabs.findIndex((tab) => tab.id === tabId);
+      const nextTabs = tabs.filter((tab) => tab.id !== tabId);
+      setActiveTerminalId((current) => {
+        if (current !== tabId) return current;
+        return nextTabs[index]?.id ?? nextTabs[index - 1]?.id ?? null;
+      });
+      return nextTabs;
+    });
+  }
+
+  function editHost(id: string) {
+    setSelectedId(id);
+    setEditing(true);
+    setActiveView("hosts");
   }
 
   if (screen === "login") {
@@ -91,48 +122,34 @@ export function App() {
   return (
     <main className="app-shell">
       <HostList
+        activeView={activeView}
         hosts={vault?.hosts ?? []}
         selectedId={selectedId}
-        onSelect={setSelectedId}
         onAdd={() => {
           setSelectedId(null);
           setEditing(true);
+          setActiveView("hosts");
+        }}
+        onConnect={openTerminal}
+        onEdit={editHost}
+        onViewChange={(view) => {
+          setActiveView(view);
+          setEditing(false);
         }}
       />
 
       <section className="workspace" aria-label="Workspace">
-        {terminalHost ? (
-          <SshTerminal host={terminalHost} onClose={() => setTerminalHost(null)} />
-        ) : null}
-        {!terminalHost && editing ? (
+        {activeView === "keys" ? <KeysPanel /> : null}
+        {activeView === "hosts" && editing ? (
           <HostEditor initial={selected ?? undefined} onSave={saveHost} />
         ) : null}
-        {!terminalHost && !editing && selected ? (
-          <div className="panel">
-            <h1>{selected.label}</h1>
-            <p>
-              {selected.username}@{selected.hostname}:{selected.port}
-            </p>
-            <button
-              className="primary-button"
-              type="button"
-              onClick={() => setTerminalHost(selected)}
-            >
-              Connect
-            </button>
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() => setEditing(true)}
-            >
-              Edit
-            </button>
-          </div>
-        ) : null}
-        {!terminalHost && !editing && !selected ? (
-          <div className="empty-state">
-            <p>Select or add a host to start a secure session.</p>
-          </div>
+        {activeView === "hosts" && !editing ? (
+          <TerminalWorkspace
+            activeId={activeTerminalId}
+            tabs={terminalTabs}
+            onActivate={setActiveTerminalId}
+            onClose={closeTerminal}
+          />
         ) : null}
       </section>
     </main>
