@@ -11,6 +11,7 @@ export type HostAuth =
 export type HostRecord = {
   id: string;
   label: string;
+  group?: string;
   hostname: string;
   port: number;
   username: string;

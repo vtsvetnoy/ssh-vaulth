@@ -27,6 +27,7 @@ export function HostEditor({ initial, onSave }: Props) {
       ? (initial.auth.privateKeyPassphrase ?? "")
       : "";
   const [label, setLabel] = useState(initial?.label ?? "");
+  const [group, setGroup] = useState(initial?.group ?? "Personal");
   const [hostname, setHostname] = useState(initial?.hostname ?? "");
   const [port, setPort] = useState(initial?.port ?? 22);
   const [username, setUsername] = useState(initial?.username ?? "");
@@ -48,6 +49,7 @@ export function HostEditor({ initial, onSave }: Props) {
       await onSave({
         id: initial?.id ?? crypto.randomUUID(),
         label,
+        group,
         hostname,
         port,
         username,
@@ -74,6 +76,8 @@ export function HostEditor({ initial, onSave }: Props) {
       <h2>{initial ? "Edit host" : "Add host"}</h2>
       <label>Label</label>
       <input value={label} onChange={(e) => setLabel(e.target.value)} required />
+      <label>Group</label>
+      <input value={group} onChange={(e) => setGroup(e.target.value)} />
       <label>Hostname</label>
       <input
         value={hostname}

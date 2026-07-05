@@ -19,27 +19,6 @@ export function TerminalWorkspace({ tabs, activeId, onActivate, onClose }: Props
 
   return (
     <div className="terminal-workspace">
-      <div className="terminal-tabs" aria-label="Open SSH sessions">
-        {tabs.map((tab) => (
-          <div
-            key={tab.id}
-            className={tab.id === activeId ? "terminal-tab active" : "terminal-tab"}
-          >
-            <button type="button" onClick={() => onActivate(tab.id)}>
-              <strong>{tab.host.label}</strong>
-              <span>{tab.host.hostname}</span>
-            </button>
-            <button
-              className="terminal-tab-close"
-              type="button"
-              aria-label={`Close ${tab.host.label}`}
-              onClick={() => onClose(tab.id)}
-            >
-              x
-            </button>
-          </div>
-        ))}
-      </div>
       <div className="terminal-panels">
         {tabs.map((tab) => (
           <div

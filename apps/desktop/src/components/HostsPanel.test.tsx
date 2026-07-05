@@ -23,15 +23,16 @@ describe("HostsPanel", () => {
         hosts={[host]}
         selectedId="host-1"
         onAdd={() => undefined}
+        onSelect={() => undefined}
         onConnect={() => undefined}
         onEdit={() => undefined}
       />,
     );
 
     expect(html).toContain("office");
-    expect(html).toContain("deploy@office.example.test:22");
-    expect(html).toContain("1 saved connection");
-    expect(html).toContain("role=\"button\"");
-    expect(html).toContain("tabindex=\"0\"");
+    expect(html).toContain("Host Details");
+    expect(html).toContain("office.example.test");
+    expect(html).toContain("SSH on <span>22</span> port");
+    expect(html).toContain("Connect");
   });
 });
