@@ -82,6 +82,9 @@ export function SshTerminal({ active, host, onClose }: Props) {
         setStatus("Failed");
         terminal.writeln("");
         terminal.writeln(err instanceof Error ? err.message : "SSH failed");
+        terminal.writeln(
+          "Check that local ssh can start, the host is reachable, and the saved credentials are valid.",
+        );
       }
     }
 

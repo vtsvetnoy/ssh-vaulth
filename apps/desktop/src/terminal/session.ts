@@ -12,14 +12,18 @@ export type SshExitEvent = {
 };
 
 export async function startSshSession(host: HostRecord) {
-  return await invoke<string>("start_ssh_session", {
-    host: {
-      hostname: host.hostname,
-      port: host.port,
-      username: host.username,
-      auth: host.auth,
-    },
-  });
+  return await withTimeout(
+    invoke<string>("start_ssh_session", {
+      host: {
+        hostname: host.hostname,
+        port: host.port,
+        username: host.username,
+        auth: host.auth,
+      },
+    }),
+    5000,
+    "SSH start did not return from the desktop backend within 5 seconds.",
+  );
 }
 
 export async function writeSshSession(sessionId: string, data: string) {
@@ -28,4 +32,18 @@ export async function writeSshSession(sessionId: string, data: string) {
 
 export async function stopSshSession(sessionId: string) {
   await invoke("stop_ssh_session", { sessionId });
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
+  let timeoutId: number | null = null;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) window.clearTimeout(timeoutId);
+  }
 }
