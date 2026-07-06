@@ -4,6 +4,7 @@
   "scripts": {
     "check": "pnpm --filter desktop check",
     "dev:desktop": "pnpm --filter desktop tauri dev",
+    "qa:release": "scripts/qa-release.sh",
     "test:rust": "cargo test --workspace"
   },
   "devDependencies": {

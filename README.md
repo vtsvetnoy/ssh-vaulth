@@ -87,6 +87,14 @@ docker compose up -d --build
 
 ## Verification
 
+Before giving a DMG to a user, run the release QA gate and then complete the manual GUI checklist:
+
+```bash
+pnpm qa:release
+```
+
+Manual QA steps live in `docs/qa/release-checklist.md`.
+
 ```bash
 cargo test --all
 cargo fmt --all -- --check
