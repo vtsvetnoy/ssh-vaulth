@@ -4,11 +4,18 @@ import type { TerminalTab } from "../types";
 type Props = {
   tabs: TerminalTab[];
   activeId: string | null;
+  layout: "focus" | "grid";
   onActivate: (id: string) => void;
   onClose: (id: string) => void;
 };
 
-export function TerminalWorkspace({ tabs, activeId, onActivate, onClose }: Props) {
+export function TerminalWorkspace({
+  tabs,
+  activeId,
+  layout,
+  onActivate,
+  onClose,
+}: Props) {
   if (tabs.length === 0) {
     return (
       <div className="empty-state">
@@ -18,14 +25,17 @@ export function TerminalWorkspace({ tabs, activeId, onActivate, onClose }: Props
   }
 
   return (
-    <div className="terminal-workspace">
+    <div className={layout === "grid" ? "terminal-workspace grid" : "terminal-workspace"}>
       <div className="terminal-panels">
-        {tabs.map((tab) => (
+        {tabs.filter((tab) => tab.host).map((tab) => (
           <div
             key={tab.id}
             className={
-              tab.id === activeId ? "terminal-panel-slot active" : "terminal-panel-slot"
+              layout === "grid" || tab.id === activeId
+                ? "terminal-panel-slot active"
+                : "terminal-panel-slot"
             }
+            onClick={() => onActivate(tab.id)}
           >
             {tab.host ? (
               <SshTerminal

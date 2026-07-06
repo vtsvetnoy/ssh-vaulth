@@ -3,20 +3,24 @@ import type { TerminalTab } from "../types";
 type Props = {
   activeId: string | null;
   homeMode: "vault" | "recent";
+  layout: "focus" | "grid";
   tabs: TerminalTab[];
   onActivate: (id: string) => void;
   onClose: (id: string) => void;
   onNewTab: () => void;
+  onToggleLayout: () => void;
   onVaultToggle: () => void;
 };
 
 export function AppTabs({
   activeId,
   homeMode,
+  layout,
   tabs,
   onActivate,
   onClose,
   onNewTab,
+  onToggleLayout,
   onVaultToggle,
 }: Props) {
   return (
@@ -51,6 +55,9 @@ export function AppTabs({
       </button>
       <button className="app-tab plus-tab" type="button" onClick={onNewTab}>
         +
+      </button>
+      <button className="app-tab layout-tab" type="button" onClick={onToggleLayout}>
+        {layout === "focus" ? "Grid" : "Focus"}
       </button>
     </div>
   );

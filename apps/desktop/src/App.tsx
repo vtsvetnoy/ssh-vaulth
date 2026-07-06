@@ -11,12 +11,13 @@ import { RecentConnections } from "./components/RecentConnections";
 import { TerminalWorkspace } from "./components/TerminalWorkspace";
 import { UnlockScreen } from "./components/UnlockScreen";
 import { decryptVault, emptyVault, encryptVault } from "./crypto/vault";
-import { openBlankTab, openHostTab } from "./terminal/tabs";
+import { closeTab, openBlankTab, openHostTab } from "./terminal/tabs";
 import type { EncryptedVault, HostRecord, KeyRecord, TerminalTab, Vault } from "./types";
 
 type Screen = "login" | "unlock" | "main";
 type MainView = "hosts" | "keys";
 type HomeMode = "vault" | "recent";
+type TerminalLayout = "focus" | "grid";
 
 export function App() {
   const [screen, setScreen] = useState<Screen>("login");
@@ -32,6 +33,7 @@ export function App() {
   const [editing, setEditing] = useState(false);
   const [terminalTabs, setTerminalTabs] = useState<TerminalTab[]>([]);
   const [activeTerminalId, setActiveTerminalId] = useState<string | null>(null);
+  const [terminalLayout, setTerminalLayout] = useState<TerminalLayout>("focus");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const client = useMemo(() => new SyncClient(serverUrl, token), [serverUrl, token]);
@@ -113,15 +115,12 @@ export function App() {
   }
 
   function closeTerminal(tabId: string) {
-    setTerminalTabs((tabs) => {
-      const index = tabs.findIndex((tab) => tab.id === tabId);
-      const nextTabs = tabs.filter((tab) => tab.id !== tabId);
-      setActiveTerminalId((current) => {
-        if (current !== tabId) return current;
-        return nextTabs[index]?.id ?? nextTabs[index - 1]?.id ?? null;
-      });
-      return nextTabs;
-    });
+    const result = closeTab(terminalTabs, tabId, activeTerminalId);
+    setTerminalTabs(result.tabs);
+    setActiveTerminalId(result.activeId);
+    if (result.tabs.find((tab) => tab.id === result.activeId && !tab.host)) {
+      setHomeMode("recent");
+    }
   }
 
   function editHost(id: string) {
@@ -166,6 +165,7 @@ export function App() {
         <AppTabs
           activeId={activeTerminalId}
           homeMode={homeMode}
+          layout={terminalLayout}
           tabs={terminalTabs}
           onActivate={(id) => {
             setActiveTerminalId(id);
@@ -179,11 +179,15 @@ export function App() {
             setVaultExpanded((expanded) => !expanded);
           }}
           onClose={closeTerminal}
+          onToggleLayout={() => {
+            setTerminalLayout((layout) => (layout === "focus" ? "grid" : "focus"));
+          }}
         />
         <div className="workspace-body">
           {activeTab?.host ? (
             <TerminalWorkspace
               activeId={activeTerminalId}
+              layout={terminalLayout}
               tabs={terminalTabs}
               onActivate={setActiveTerminalId}
               onClose={closeTerminal}

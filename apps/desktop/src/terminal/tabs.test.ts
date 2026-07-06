@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { openBlankTab, openHostTab } from "./tabs";
+import { closeTab, MAX_TERMINAL_TABS, openBlankTab, openHostTab } from "./tabs";
 import type { HostRecord, TerminalTab } from "../types";
 
 const host: HostRecord = {
@@ -54,6 +54,28 @@ describe("openHostTab", () => {
       "new-6",
     ]);
     expect(activeId).toBe("new-6");
+  });
+
+  it("does not open more than twenty tabs", () => {
+    let tabs: TerminalTab[] = [];
+    let activeId: string | null = "";
+
+    for (let index = 1; index <= 21; index += 1) {
+      const result = openBlankTab(tabs, () => `new-${index}`);
+      tabs = result.tabs;
+      activeId = result.activeId;
+    }
+
+    expect(tabs).toHaveLength(MAX_TERMINAL_TABS);
+    expect(tabs.at(-1)?.id).toBe("new-20");
+    expect(activeId).toBe("new-20");
+  });
+
+  it("keeps at least one tab after closing the last tab", () => {
+    const result = closeTab([{ id: "new-1" }], "new-1", "new-1", () => "new-2");
+
+    expect(result.tabs).toEqual([{ id: "new-2" }]);
+    expect(result.activeId).toBe("new-2");
   });
 
   it("turns the active blank tab into a host tab", () => {

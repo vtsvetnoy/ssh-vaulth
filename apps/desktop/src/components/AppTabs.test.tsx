@@ -9,10 +9,12 @@ describe("AppTabs", () => {
       <AppTabs
         activeId={null}
         homeMode="recent"
+        layout="focus"
         tabs={[]}
         onActivate={() => undefined}
         onClose={() => undefined}
         onNewTab={() => undefined}
+        onToggleLayout={() => undefined}
         onVaultToggle={() => undefined}
       />,
     );
@@ -21,5 +23,6 @@ describe("AppTabs", () => {
     expect(html).toContain("New Tab");
     expect(html).toContain("plus-tab");
     expect(html).toContain("new-tab active");
+    expect(html).toContain("Grid");
   });
 });

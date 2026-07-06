@@ -416,6 +416,11 @@ textarea:focus {
   font-size: 1.2rem;
 }
 
+.layout-tab {
+  margin-left: auto;
+  min-width: 76px;
+}
+
 .centered {
   display: grid;
   min-height: 100%;
@@ -799,6 +804,14 @@ textarea:focus {
   grid-template-rows: minmax(0, 1fr);
 }
 
+.terminal-workspace.grid .terminal-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 10px;
+  overflow: auto;
+  padding: 10px;
+}
+
 .terminal-tabs {
   display: flex;
   min-width: 0;
@@ -867,12 +880,22 @@ textarea:focus {
   min-height: 0;
 }
 
+.terminal-panels {
+  width: 100%;
+  height: 100%;
+}
+
 .terminal-panel-slot {
   display: none;
 }
 
 .terminal-panel-slot.active {
   display: block;
+}
+
+.terminal-workspace.grid .terminal-panel-slot.active {
+  display: block;
+  min-height: 360px;
 }
 
 .terminal-workspace .terminal-panel {
