@@ -148,7 +148,7 @@ pub fn start_session(
                 Ok(size) => {
                     let data = String::from_utf8_lossy(&buffer[..size]).to_string();
                     let _ = output_window.emit(
-                        "ssh://output",
+                        "ssh-output",
                         SshOutputEvent {
                             session_id: output_session_id.clone(),
                             data,
@@ -160,7 +160,7 @@ pub fn start_session(
         }
 
         let _ = output_window.emit(
-            "ssh://exit",
+            "ssh-exit",
             SshExitEvent {
                 session_id: output_session_id,
             },

@@ -61,12 +61,12 @@ export function SshTerminal({ active, host, onClose }: Props) {
         terminal.writeln("[preparing ssh event listeners]");
         const [outputUnlisten, exitUnlisten] = await withUiTimeout(
           Promise.all([
-            listen<SshOutputEvent>("ssh://output", (event) => {
+            listen<SshOutputEvent>("ssh-output", (event) => {
               if (event.payload.sessionId === sessionIdRef.current) {
                 terminal.write(event.payload.data);
               }
             }),
-            listen<SshExitEvent>("ssh://exit", (event) => {
+            listen<SshExitEvent>("ssh-exit", (event) => {
               if (event.payload.sessionId === sessionIdRef.current) {
                 setStatus("Disconnected");
                 terminal.writeln("");
@@ -87,7 +87,7 @@ export function SshTerminal({ active, host, onClose }: Props) {
       } catch (err) {
         setStatus("Failed");
         terminal.writeln("");
-        terminal.writeln(err instanceof Error ? err.message : "SSH failed");
+        terminal.writeln(formatError(err));
         terminal.writeln(
           "Check that local ssh can start, the host is reachable, and the saved credentials are valid.",
         );
@@ -131,6 +131,16 @@ export function SshTerminal({ active, host, onClose }: Props) {
       <div ref={containerRef} className="terminal-surface" />
     </div>
   );
+}
+
+function formatError(err: unknown) {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return "SSH failed";
+  }
 }
 
 async function withUiTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
