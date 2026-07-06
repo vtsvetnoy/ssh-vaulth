@@ -57,23 +57,29 @@ export function SshTerminal({ active, host, onClose }: Props) {
     });
 
     async function connect() {
-      const [outputUnlisten, exitUnlisten] = await Promise.all([
-        listen<SshOutputEvent>("ssh://output", (event) => {
-          if (event.payload.sessionId === sessionIdRef.current) {
-            terminal.write(event.payload.data);
-          }
-        }),
-        listen<SshExitEvent>("ssh://exit", (event) => {
-          if (event.payload.sessionId === sessionIdRef.current) {
-            setStatus("Disconnected");
-            terminal.writeln("");
-            terminal.writeln("[session closed]");
-          }
-        }),
-      ]);
-      disposables.push(outputUnlisten, exitUnlisten);
-
       try {
+        terminal.writeln("[preparing ssh event listeners]");
+        const [outputUnlisten, exitUnlisten] = await withUiTimeout(
+          Promise.all([
+            listen<SshOutputEvent>("ssh://output", (event) => {
+              if (event.payload.sessionId === sessionIdRef.current) {
+                terminal.write(event.payload.data);
+              }
+            }),
+            listen<SshExitEvent>("ssh://exit", (event) => {
+              if (event.payload.sessionId === sessionIdRef.current) {
+                setStatus("Disconnected");
+                terminal.writeln("");
+                terminal.writeln("[session closed]");
+              }
+            }),
+          ]),
+          3000,
+          "SSH event listeners did not become ready within 3 seconds.",
+        );
+        disposables.push(outputUnlisten, exitUnlisten);
+        terminal.writeln("[event listeners ready]");
+        terminal.writeln("[requesting desktop backend to start ssh]");
         const sessionId = await startSshSession(host);
         sessionIdRef.current = sessionId;
         setStatus("SSH started");
@@ -125,4 +131,18 @@ export function SshTerminal({ active, host, onClose }: Props) {
       <div ref={containerRef} className="terminal-surface" />
     </div>
   );
+}
+
+async function withUiTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
+  let timeoutId: number | null = null;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) window.clearTimeout(timeoutId);
+  }
 }
