@@ -34,6 +34,28 @@ describe("openHostTab", () => {
     expect(second.activeId).toBe("new-2");
   });
 
+  it("opens six blank tabs in a row", () => {
+    let tabs: TerminalTab[] = [];
+    let activeId = "";
+
+    for (let index = 1; index <= 6; index += 1) {
+      const result = openBlankTab(tabs, () => `new-${index}`);
+      tabs = result.tabs;
+      activeId = result.activeId;
+    }
+
+    expect(tabs).toHaveLength(6);
+    expect(tabs.map((tab) => tab.id)).toEqual([
+      "new-1",
+      "new-2",
+      "new-3",
+      "new-4",
+      "new-5",
+      "new-6",
+    ]);
+    expect(activeId).toBe("new-6");
+  });
+
   it("turns the active blank tab into a host tab", () => {
     const existing: TerminalTab[] = [{ id: "new-1" }, { id: "new-2" }];
 
