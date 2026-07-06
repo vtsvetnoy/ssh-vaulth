@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default permissions for the SSH Vault desktop window.",
+  "windows": ["main"],
+  "permissions": ["core:default", "core:event:default"]
+}
