@@ -3,9 +3,13 @@ import type { HostRecord, TerminalTab } from "../types";
 export const MIN_TERMINAL_TABS = 1;
 export const MAX_TERMINAL_TABS = 20;
 
+function newTabId() {
+  return crypto.randomUUID();
+}
+
 export function openBlankTab(
   tabs: TerminalTab[],
-  newId: () => string = crypto.randomUUID,
+  newId: () => string = newTabId,
 ) {
   if (tabs.length >= MAX_TERMINAL_TABS) {
     return {
@@ -25,7 +29,7 @@ export function openHostTab(
   tabs: TerminalTab[],
   host: HostRecord,
   activeId: string | null = null,
-  newId: () => string = crypto.randomUUID,
+  newId: () => string = newTabId,
 ) {
   if (activeId) {
     const activeTab = tabs.find((tab) => tab.id === activeId);
@@ -55,7 +59,7 @@ export function closeTab(
   tabs: TerminalTab[],
   tabId: string,
   activeId: string | null,
-  newId: () => string = crypto.randomUUID,
+  newId: () => string = newTabId,
 ) {
   const index = tabs.findIndex((tab) => tab.id === tabId);
   const nextTabs = tabs.filter((tab) => tab.id !== tabId);

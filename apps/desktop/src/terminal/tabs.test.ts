@@ -34,6 +34,14 @@ describe("openHostTab", () => {
     expect(second.activeId).toBe("new-2");
   });
 
+  it("opens a blank tab with the default id generator", () => {
+    const result = openBlankTab([]);
+
+    expect(result.tabs).toHaveLength(1);
+    expect(result.tabs[0].id).toEqual(expect.any(String));
+    expect(result.activeId).toBe(result.tabs[0].id);
+  });
+
   it("opens six blank tabs in a row", () => {
     let tabs: TerminalTab[] = [];
     let activeId = "";
